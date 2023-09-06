@@ -1,0 +1,31 @@
+# example values
+
+indexing-settings:
+  sites:
+    - url: https://www.lutherancathedral.ru
+      name: Cathedral
+    - url: https://dimonvideo.ru
+      name: Dimon
+
+server:
+  port: 8080
+
+spring:
+  datasource:
+    username: newuser
+    password: password
+    url: jdbc:mysql://localhost:3306/search_engine?useSSL=false&requireSSL=false&allowPublicKeyRetrieval=true
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+  mvc:
+    format:
+      date-time: yyyy-MM-dd HH:mm:ss
+jsoup:
+  userAgent: Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201
+  referrer: http://www.google.com
+  timeOut: 30000
