@@ -454,47 +454,7 @@ public class SearchServiceImpl implements SearchService {
         return listPositions.size() / 2;
     }
 
-//    public String getSnippet(String query, String pageText) {
-//
-//        Set<String> setLemmas = morphologyParser.getSetLemmaFromQuery(query);
-//        List<String> sentenceList = morphologyParser.splitTextBySentence(pageText);
-//        List<SnippetData> listData = new ArrayList<>();
-//        for (String sentence : sentenceList) {
-//            int lengthSentence = sentence.length();
-//            int rank = 0;
-//            int lastIndex = 0;
-//            List<Integer> listPosition = new ArrayList<>();
-//            List<String> words = morphologyParser.splitTextByUpperWords(sentence.trim());
-//            for (String word : words) {
-//                String normalForm = getNormalForm(word);
-//                if (normalForm == null) {
-//                    continue;
-//                }
-//                for (String lemma : setLemmas) {
-//                    if (normalForm.equals(lemma)) {
-//                        int startPosition = sentence.indexOf(word, lastIndex);
-//                        if (startPosition < 0) {
-//                            continue;
-//                        }
-//                        int endPosition = startPosition + word.length();
-//                        listPosition.add(startPosition);
-//                        listPosition.add(endPosition);
-//                        lastIndex = endPosition;
-//                        rank++;
-//                        break;
-//                    }
-//                }
-//            }
-//            if (rank > 0) {
-//                SnippetData snippetData = new SnippetData(sentence, listPosition, rank, lengthSentence);
-//                listData.add(snippetData);
-//            }
-//
-//        }
-//        listData.sort((o1, o2) -> Integer.compare(o2.rank, o1.rank));
-//
-//        return assembleSnippet(listData);
-//    }
+
 }
 
 
