@@ -35,7 +35,6 @@ public class IndexingServiceImpl implements IndexingService {
     private final EntityChanger entityChanger;
 
 
-
     @Autowired
     public IndexingServiceImpl(SitesList sitesList,
                                JsoupConfig jsoupConfig, SiteEntityRepository siteEntityRepository,
@@ -48,37 +47,31 @@ public class IndexingServiceImpl implements IndexingService {
         this.pageRepository = pageRepository;
         this.morphologyParser = morphologyParser;
         this.entityChanger = entityChanger;
-
     }
 
     @Override
     public ResponseResult startIndexing() {
 
         Set<Site> siteSet = new HashSet<>(sitesList.getSites());
-        if (siteSet.isEmpty()){
+        if (siteSet.isEmpty()) {
             return ResponseResult.sendBadResponse("Конфигурационный файл пуст");
         }
 
-        if (!forkJoinPoolList.isEmpty()){
+        if (!forkJoinPoolList.isEmpty()) {
             return ResponseResult.sendBadResponse("Индексация уже запущена");
         }
 
         for (Site site : siteSet) {
-           Thread thread = new Thread(() -> createAndIndexSiteEntity(site));
-           thread.start();
+            Thread thread = new Thread(() -> createAndIndexSiteEntity(site));
+            thread.start();
         }
-
         return ResponseResult.sendGoodResponse();
-
     }
-
-
-
 
     @Override
     public ResponseResult stopIndexing() {
 
-        if(forkJoinPoolList.isEmpty()) {
+        if (forkJoinPoolList.isEmpty()) {
             return ResponseResult.sendBadResponse("Индексация не запущена");
         }
         forkJoinPoolList.forEach(ForkJoinPool::shutdownNow);
@@ -87,17 +80,14 @@ public class IndexingServiceImpl implements IndexingService {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-        for (Site site : sitesList.getSites()){
-           String url = site.getUrl();
-           SiteEntity siteEntity = siteEntityRepository.findByUrl(url);
-           if(siteEntity != null){
-               toFailed(siteEntity, "Прервано пользователем");
-           }
-       }
-
+        for (Site site : sitesList.getSites()) {
+            String url = site.getUrl();
+            SiteEntity siteEntity = siteEntityRepository.findByUrl(url);
+            if (siteEntity != null) {
+                toFailed(siteEntity, "Прервано пользователем");
+            }
+        }
         return ResponseResult.sendGoodResponse();
-
-
     }
 
     private SiteEntity createNewSiteEntityInDb(Status status, String name, String url) {
@@ -106,17 +96,13 @@ public class IndexingServiceImpl implements IndexingService {
         return siteEntity;
     }
 
-
-
-
-
     private void createAndIndexSiteEntity(Site site) {
         ForkJoinPool pool = new ForkJoinPool();
         forkJoinPoolList.add(pool);
         String url = site.getUrl();
         String name = site.getName();
         SiteEntity siteEntity = siteEntityRepository.findByUrl(url);
-        if(siteEntity != null){
+        if (siteEntity != null) {
             toIndexing(siteEntity);
             entityChanger.deleteAllDataAboutSiteEntity(siteEntity);
         }
@@ -126,36 +112,45 @@ public class IndexingServiceImpl implements IndexingService {
             pool.invoke(new SiteIndexer(url, pageRepository, morphologyParser, newSiteEntity, true,
                     siteEntityRepository, jsoupConfig));
 
-        } catch (RejectedExecutionException e){
+        } catch (RejectedExecutionException e) {
             toFailed(newSiteEntity, "Прервано пользователем");
         }
         forkJoinPoolList.remove(pool);
-        if(newSiteEntity.getStatus() != Status.FAILED){
+        if (newSiteEntity.getStatus() != Status.FAILED) {
             toIndexed(newSiteEntity);
         }
-
-
-
-
-
     }
 
-    private void toFailed(SiteEntity siteEntity, String error){
+    private void toFailed(SiteEntity siteEntity, String error) {
         siteEntity.setStatus(Status.FAILED);
         siteEntity.setLastErrorText(error);
         siteEntityRepository.save(siteEntity);
     }
 
-    private void toIndexed(SiteEntity siteEntity){
+    private void toIndexed(SiteEntity siteEntity) {
         siteEntity.setStatus(Status.INDEXED);
         siteEntityRepository.save(siteEntity);
     }
 
-    private void toIndexing(SiteEntity siteEntity){
+    private void toIndexing(SiteEntity siteEntity) {
         siteEntity.setStatus(Status.INDEXING);
         siteEntityRepository.save(siteEntity);
     }
 
+    @Override
+    public void initSitesInTable() {
+        List<Site> sites = sitesList.getSites();
+        for (Site site : sites) {
+            String url = site.getUrl();
+            SiteEntity siteEntity = siteEntityRepository.findByUrl(url);
+            if (siteEntity != null) {
+                Status status = siteEntity.getStatus();
+                if (status == Status.INDEXING) {
+                    toFailed(siteEntity, "Индексация была прервана при завершении приложения");
+                }
+            }
+        }
+    }
 
 
 }

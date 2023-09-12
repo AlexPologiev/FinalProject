@@ -44,7 +44,6 @@ public class SiteIndexer extends RecursiveAction {
 
     @Override
     protected void compute() {
-
         HtmlParser parser = new HtmlParser(jsoupConfig);
         List<String> listLinks = new ArrayList<>();
         String clippedUrl = getUrlWithOutSiteEntity(url);
@@ -56,7 +55,6 @@ public class SiteIndexer extends RecursiveAction {
                 String content = parser.getContent();
                 int code = parser.getCodeResponse();
 
-
                 if (!isVisited(clippedUrl, siteEntity)) {
                     Page newPage = savePage(siteEntity, clippedUrl, code, content);
                     if (code < BAD_RESPONSE) {
@@ -65,7 +63,6 @@ public class SiteIndexer extends RecursiveAction {
                         toFailed(siteEntity, "Главная страница не дотсупна");
                     }
                 }
-
 
                 List<SiteIndexer> taskList = createTaskList(listLinks);
                 taskList.forEach(SiteIndexer::join);
@@ -76,19 +73,13 @@ public class SiteIndexer extends RecursiveAction {
             } catch (Exception e) {
                 if (isFirstAction) {
                     toFailed(siteEntity, "Главная страница не дотсупна");
-
-
                 }
-
-
             }
         }
     }
 
-
     private List<SiteIndexer> createTaskList(List<String> list) {
         List<SiteIndexer> taskList = new ArrayList<>();
-
         for (String str : list) {
             SiteIndexer task = new SiteIndexer(str,
                     pageRepository, morphologyParser, siteEntity, false, siteEntityRepository, jsoupConfig);
@@ -98,14 +89,12 @@ public class SiteIndexer extends RecursiveAction {
         return taskList;
     }
 
-
     private String getUrlWithOutSiteEntity(String urlPage) {
         String urlSiteEntity = siteEntity.getUrl();
         if (urlPage.equals(urlSiteEntity)) {
             return "/";
         }
         return urlPage.replace(urlSiteEntity, "");
-
     }
 
     private boolean isVisited(String path, SiteEntity siteEntity) {
@@ -130,7 +119,6 @@ public class SiteIndexer extends RecursiveAction {
     }
 
     private synchronized Page savePage(SiteEntity siteEntity, String path, int code, String content) {
-
         Page newPage = new Page(siteEntity, path, code, content);
         pageRepository.save(newPage);
         return newPage;

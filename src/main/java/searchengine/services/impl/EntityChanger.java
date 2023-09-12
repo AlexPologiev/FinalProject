@@ -34,7 +34,6 @@ public class EntityChanger {
         this.indexRepository = indexRepository;
     }
 
-
     public void deleteIndexAndLemmasByPage(Page page) {
         List<Index> listIndex = indexRepository.findAllByPage(page);
         List<Lemma> listLemma = new ArrayList<>();
@@ -57,10 +56,8 @@ public class EntityChanger {
 
     }
 
-
     public void deleteAllDataAboutSiteEntity(SiteEntity siteEntity) {
         siteEntityRepository.delete(siteEntity);
-
     }
 
 }

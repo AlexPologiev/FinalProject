@@ -69,13 +69,7 @@ public class ApiController {
     }
 
     private ResponseEntity<ResponseResult> runAndSendResponse(ResponseResult result) {
-        HttpStatus status;
-        if (result.isResult()) {
-            status = HttpStatus.CREATED;
-        } else {
-            status = HttpStatus.BAD_REQUEST;
-        }
-
+        HttpStatus status = result.isResult() ? HttpStatus.CREATED : HttpStatus.BAD_REQUEST;
         return new ResponseEntity<>(result, status);
     }
 }

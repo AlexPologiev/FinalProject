@@ -16,7 +16,6 @@ public class Index {
         this.rank = rank;
     }
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

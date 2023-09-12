@@ -42,17 +42,14 @@ public class StatisticsServiceImpl implements StatisticsService {
 
     @Override
     public StatisticsResponse getStatistics() {
-
         List<DetailedStatisticsItem> detailed = new ArrayList<>();
         List<Site> sitesList = sites.getSites();
         for (Site site : sitesList) {
             DetailedStatisticsItem detailedStatisticsItem = getDetailedStatItem(site);
             detailed.add(detailedStatisticsItem);
         }
-
         TotalStatistics total = getTotalStatistics(detailed);
         StatisticsData statisticsData = new StatisticsData(total, detailed);
-
         return new StatisticsResponse(true, statisticsData);
     }
 
@@ -69,10 +66,8 @@ public class StatisticsServiceImpl implements StatisticsService {
             if(status.equals("INDEXING")){
                 indexing = false;
             }
-
         }
         return new TotalStatistics(countSites, countPages, countLemmas, indexing);
-
     }
 
     private DetailedStatisticsItem getDetailedStatItem(Site site) {
@@ -98,8 +93,6 @@ public class StatisticsServiceImpl implements StatisticsService {
             lemmas = 0;
         }
         return new DetailedStatisticsItem(url, name, status, statusTime, error, pages, lemmas);
-
-
     }
 
 }

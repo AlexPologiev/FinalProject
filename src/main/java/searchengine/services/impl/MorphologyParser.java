@@ -4,11 +4,10 @@ import org.apache.lucene.morphology.LuceneMorphology;
 import org.apache.lucene.morphology.russian.RussianLuceneMorphology;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import searchengine.model.*;
 import searchengine.repositoty.IndexRepository;
 import searchengine.repositoty.LemmaRepository;
-import searchengine.repositoty.PageRepository;
+
 
 
 import java.io.IOException;
@@ -18,9 +17,7 @@ import java.util.*;
 public class MorphologyParser {
 
     private static final List<String> particlesNames = List.of("МЕЖД", "ПРЕДЛ", "СОЮЗ", "ЧАСТ");
-    private static final int codeBadResponse = 400;
     LuceneMorphology luceneMorphology = new RussianLuceneMorphology();
-
     private final IndexRepository indexRepository;
     private final LemmaRepository lemmaRepository;
 
@@ -98,7 +95,6 @@ public class MorphologyParser {
             } else {
                 lemmas.put(normalWord, 1);
             }
-
         }
         return lemmas;
     }
@@ -120,15 +116,12 @@ public class MorphologyParser {
 
             String normalWord = normalForms.get(0);
             resultSet.add(normalWord);
-
         }
-
         return resultSet;
     }
 
 
     public List<String> splitTextByWords(String text) {
-
         String regexPunctuationMarks = "[^а-яА-Я\\s]";
         String regexWhiteSigns = "\\s+";
 
@@ -140,7 +133,6 @@ public class MorphologyParser {
     }
 
     public List<String> splitTextByUpperWords(String text) {
-
         String regexPunctuationMarks = "[^а-яА-Я\\s]";
         String regexWhiteSigns = "\\s+";
 
@@ -151,8 +143,6 @@ public class MorphologyParser {
 
 
     public List<String> splitTextBySentence(String text) {
-
-        //String regexWhiteSigns = "\\s{2,}";
         String regexWhiteSigns = "[^а-яА-Я\\s0-9,\\-:/\"«»—a-zA-z]";
         String[] massiveWords = text.split(regexWhiteSigns);
         return Arrays.stream(massiveWords).toList();
@@ -173,7 +163,6 @@ public class MorphologyParser {
     }
 
     public String getTextWithoutHtmlTags(String text) {
-
         String regexForHtmlTags = "<[^>]*>";
         return text.replaceAll(regexForHtmlTags, "");
     }

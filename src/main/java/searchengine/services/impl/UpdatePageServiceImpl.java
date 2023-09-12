@@ -76,9 +76,6 @@ public class UpdatePageServiceImpl implements UpdatePageService {
                             "Данная страница находится за пределами заданных сайтов");
                 }
             }
-
-
-
         return new ResponseResult(true,"");
     }
 
@@ -112,24 +109,18 @@ public class UpdatePageServiceImpl implements UpdatePageService {
                 break;
             }
         }
-
         return tempUrl.substring(0,endPosition);
     }
 
     private String isExistSiteIntoList(String urlSiteEntity){
-
-
         for (Site site : sitesList.getSites()){
             String url = site.getUrl();
             if(urlSiteEntity.equals(url)){
                 return site.getName();
             }
         }
-
         return null;
     }
-
-
 
     private boolean isCorrectSite(String urlPage) {
         String regex = "https://.*";

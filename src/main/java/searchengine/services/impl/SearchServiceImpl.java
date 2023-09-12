@@ -32,7 +32,6 @@ public class SearchServiceImpl implements SearchService {
     static final int CUT_LIMIT = 247;
     static final int REMAINDER = 50;
     private final String THREE_DOTS_SING = "...";
-
     private final MorphologyParser morphologyParser;
     private final LemmaRepository lemmaRepository;
     private final SiteEntityRepository siteEntityRepository;
@@ -56,34 +55,27 @@ public class SearchServiceImpl implements SearchService {
         this.searchResponse = searchResponse;
     }
 
-
     @Override
     public SearchResponse search(SearchRequest searchRequest) {
-
         int offset = searchRequest.getOffset() == null ? OFFSET : searchRequest.getOffset();
         int limit = searchRequest.getLimit() == null ? LIMIT : searchRequest.getLimit();
-
 
         if (offset == 0) {
             searchResponse.clear();
             runSearch(searchRequest, searchResponse);
         }
-
         return searchResponse.show(offset, limit);
     }
 
-    private SearchResponse runSearch(SearchRequest searchRequest, SearchResponse searchResponse) {
-
+    private void runSearch(SearchRequest searchRequest, SearchResponse searchResponse) {
         Map<Page, Float> mapPageRelativeRelevance;
         String urlRootSite = searchRequest.getSite();
-
 
         HashMap<String, Integer> mapLemmaFrequency = getMapLemmaFrequency(searchRequest);
         if (mapLemmaFrequency.isEmpty()) {
             searchResponse.setResult(true);
-            return searchResponse;
+            return;
         }
-
 
         SiteEntity siteEntity = siteEntityRepository.findByUrl(urlRootSite);
         List<Map.Entry<String, Integer>> sortedList = new ArrayList<>(mapLemmaFrequency.entrySet());
@@ -93,7 +85,7 @@ public class SearchServiceImpl implements SearchService {
 
         if (resultList.isEmpty()) {
             searchResponse.setResult(true);
-            return searchResponse;
+            return;
         }
         List<String> lemmaList = new ArrayList<>();
 
@@ -102,13 +94,9 @@ public class SearchServiceImpl implements SearchService {
         }
 
         mapPageRelativeRelevance = createMapPageRelativeRelevance(resultList, lemmaList);
-
         fillSearchResponse(searchResponse,
                 mapPageRelativeRelevance, searchRequest);
-
-        return searchResponse;
     }
-
 
     private HashMap<String, Integer> getFrequency(Set<String> setLemmas, SiteEntity siteEntity) {
 
@@ -128,7 +116,6 @@ public class SearchServiceImpl implements SearchService {
             }
             resultMap.put(nameLemma, resultFrequency);
         }
-
         return resultMap;
     }
 
@@ -153,18 +140,12 @@ public class SearchServiceImpl implements SearchService {
                 }
             } else {
                 lemmaList = lemmaRepository.findByNameLemma(stringLemma, siteEntity);
-
                 findPagesByLemma(lemmaList, resultList);
-
-
                 if (resultList.isEmpty()) {
                     break;
                 }
             }
-
-
         }
-
         return resultList;
     }
 
@@ -182,19 +163,16 @@ public class SearchServiceImpl implements SearchService {
                         relevance = relevance + index.getRank();
                         break;
                     }
-
                 }
             }
             resultMap.put(page, relevance);
             relevance = 0;
         }
-
         return resultMap;
     }
 
     private Map<Page, Float> createMapPageRelativeRelevance(List<Page> pageList,
                                                             List<String> lemmaList) {
-
         Map<Page, Float> mapPageAbsoluteRelevance = createMapPageAbsoluteRelevance(pageList, lemmaList);
         Map<Page, Float> resultMap = new HashMap<>();
 
@@ -204,13 +182,11 @@ public class SearchServiceImpl implements SearchService {
             float relativeRelevance = (float) Math.round(mapPageAbsoluteRelevance.get(page) / maxRelevance * 1000) / 1000;
             resultMap.put(page, relativeRelevance);
         }
-
         return resultMap;
     }
 
     private void findPagesByLemma(List<Lemma> lemmaList, List<Page> pageList) {
         List<Page> resultList = new ArrayList<>(pageList);
-
         for (Page page : pageList) {
             List<Index> indexList = page.getIndexList();
             boolean match = false;
@@ -232,12 +208,10 @@ public class SearchServiceImpl implements SearchService {
         }
         pageList.clear();
         pageList.addAll(resultList);
-
     }
 
     private void fillSearchResponse(SearchResponse searchResponse,
                                     Map<Page, Float> mapPageRelevance, SearchRequest searchRequest) {
-
         int count = 0;
         for (Page page : mapPageRelevance.keySet()) {
             String site = page.getSiteEntity().getUrl();
@@ -261,8 +235,6 @@ public class SearchServiceImpl implements SearchService {
                     snippet, relevance);
             count++;
             searchResponse.addSearchResult(result);
-
-
         }
         searchResponse.setCount(count);
         searchResponse.setResult(true);
@@ -279,12 +251,10 @@ public class SearchServiceImpl implements SearchService {
             SiteEntity siteEntity = siteEntityRepository.findByUrl(urlRootSite);
             mapLemmaFrequency = getFrequency(inputSetLemmas, siteEntity);
         }
-
         return mapLemmaFrequency;
     }
 
     public String getSnippet(String query, String pageText) {
-
         Set<String> setLemmas = morphologyParser.getSetLemmaFromQuery(query);
         List<String> sentenceList = morphologyParser.splitTextBySentence(pageText);
         List<SnippetData> listData = new ArrayList<>();
@@ -300,7 +270,6 @@ public class SearchServiceImpl implements SearchService {
             }
         }
         listData.sort((o1, o2) -> Integer.compare(o2.rank, o1.rank));
-
         return assembleSnippet(listData);
     }
 
@@ -319,7 +288,6 @@ public class SearchServiceImpl implements SearchService {
             stringBuilder.insert(positions.get(i) + count, sign);
             count = count + sign.length();
         }
-
         return stringBuilder.toString();
     }
 
@@ -379,7 +347,6 @@ public class SearchServiceImpl implements SearchService {
             return makeSnippetInBold(data);
 
         }
-
         resultString = clueAndMakeInBoldSnippet(snippetDataList);
         resultString.delete(CUT_LIMIT, resultString.length());
         resultString.append(THREE_DOTS_SING);
@@ -415,12 +382,10 @@ public class SearchServiceImpl implements SearchService {
         if (word.isBlank()) {
             return null;
         }
-
         String normalForm = morphologyParser.getNormalForm(word);
         if (normalForm.isBlank() || morphologyParser.isOfficialPart(word)) {
             return null;
         }
-
         return normalForm;
     }
 
@@ -453,7 +418,6 @@ public class SearchServiceImpl implements SearchService {
     private int getRank(List<Integer> listPositions) {
         return listPositions.size() / 2;
     }
-
 
 }
 

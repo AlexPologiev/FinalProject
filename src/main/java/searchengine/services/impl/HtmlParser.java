@@ -13,14 +13,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-
-
 public class HtmlParser {
 
     private int codeResponse = 404;
     private String content = "";
     private List<String> listLinks = new ArrayList<>();
-
     private final JsoupConfig jsoupConfig;
 
     public HtmlParser(JsoupConfig jsoupConfig) {
@@ -28,16 +25,13 @@ public class HtmlParser {
         this.jsoupConfig = jsoupConfig;
     }
 
-
-    private Connection getConnection(String url){
+    private Connection getConnection(String url) {
         return Jsoup.connect(url)
                 .ignoreHttpErrors(true)
                 .timeout(jsoupConfig.getTimeOut())
                 .userAgent(jsoupConfig.getUserAgent())
                 .referrer(jsoupConfig.getReferrer());
-
     }
-
 
     public Document getCodeOfPage(Connection connection) throws Exception {
         return connection.get();
@@ -55,12 +49,11 @@ public class HtmlParser {
         Elements elements = document.select("a[href]");
         for (Element element : elements) {
             String link = element.attr("abs:href");
-            if (isCorrect(link,url)) {
+            if (isCorrect(link, url)) {
                 listLinks.add(link);
             }
         }
         return listLinks;
-
     }
 
     public int getCodeResponse() {
@@ -82,34 +75,29 @@ public class HtmlParser {
         return document.body().toString();
     }
 
-
-
-    private boolean isCorrect(String link,String url){
+    private boolean isCorrect(String link, String url) {
 
         return !listLinks.contains(link)
-                && isForwardLink(link,url)
+                && isForwardLink(link, url)
                 && !link.contains("#")
                 && !link.contains(".pdf")
                 && !link.contains(".png")
                 && !link.contains(".jpg");
-
     }
 
-    private boolean isForwardLink(String link, String url){
+    private boolean isForwardLink(String link, String url) {
         String domain = separateDomain(url);
         String regex1 = "^" + "https://www." + domain + ".*";
         String regex2 = "^" + "https://" + domain + ".*";
         String dotSign = ".";
-        if(link.contains(domain)){
-            return link.matches(regex1)|| link.matches(regex2);
+        if (link.contains(domain)) {
+            return link.matches(regex1) || link.matches(regex2);
         } else {
             return !link.contains(dotSign);
         }
     }
 
-
-    private String separateDomain(String url){
-        return url.replaceAll("https://","").trim();
-
+    private String separateDomain(String url) {
+        return url.replace("https://", "").trim();
     }
 }

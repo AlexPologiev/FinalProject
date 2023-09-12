@@ -54,6 +54,5 @@ public class SearchResponse {
         data.clear();
         count = 0;
         error = "";
-
     }
 }
